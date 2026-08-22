@@ -2,6 +2,14 @@
 Unit tests for SQLAlchemy ORM models, metadata declarations, constraints, and Alembic migration revision graph integrity.
 Runs entirely offline without requiring a live PostgreSQL database connection.
 """
+import sys
+from pathlib import Path
+
+# Ensure backend directory is in sys.path for IDEs and test runners
+backend_dir = Path(__file__).resolve().parent.parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
 from sqlalchemy import UniqueConstraint, CheckConstraint
 from app.database.models import (
     Base,
