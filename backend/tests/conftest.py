@@ -13,8 +13,12 @@ if str(backend_dir) not in sys.path:
 os.environ["ENVIRONMENT"] = "testing"
 os.environ["LOG_LEVEL"] = "WARNING"
 
-from app.main import app
-from app.core.config import get_settings
+try:
+    from app.main import app
+    from app.core.config import get_settings
+except ImportError:
+    from backend.app.main import app  # type: ignore
+    from backend.app.core.config import get_settings  # type: ignore
 
 
 @pytest.fixture(scope="session")

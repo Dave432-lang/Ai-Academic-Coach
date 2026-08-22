@@ -3,14 +3,10 @@
     "backend"
   ],
   "extraPaths": [
-    "backend"
+    "backend",
+    "./backend",
+    "."
   ],
-  "executionEnvironments": [
-    {
-      "root": "backend",
-      "extraPaths": [
-        "."
-      ]
-    }
-  ]
+  "reportMissingImports": "none",
+  "reportMissingModuleSource": "none"
 }

@@ -7,7 +7,10 @@ backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
-from app.core.config import Settings
+try:
+    from app.core.config import Settings
+except ImportError:
+    from backend.app.core.config import Settings  # type: ignore
 
 
 def test_settings_default_values(settings):

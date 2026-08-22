@@ -11,8 +11,13 @@ if str(backend_dir) not in sys.path:
 from sqlalchemy import text
 from alembic.config import Config
 from alembic import command
-from app.database.connection import engine, SessionLocal, check_database_connection
-from app.database.models import User, AccountStatus
+
+try:
+    from app.database.connection import engine, SessionLocal, check_database_connection
+    from app.database.models import User, AccountStatus
+except ImportError:
+    from backend.app.database.connection import engine, SessionLocal, check_database_connection  # type: ignore
+    from backend.app.database.models import User, AccountStatus  # type: ignore
 
 
 def is_database_connected() -> bool:
