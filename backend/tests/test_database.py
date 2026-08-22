@@ -1,6 +1,10 @@
+import time
 import pytest
 from sqlalchemy import text
-from app.database.connection import engine, check_database_connection
+from alembic.config import Config
+from alembic import command
+from app.database.connection import engine, SessionLocal, check_database_connection
+from app.database.models import User, AccountStatus
 
 
 def is_database_connected() -> bool:
@@ -42,9 +46,6 @@ def test_live_alembic_migrations():
     """
     Integration Test: Verify live Alembic upgrade and schema tables.
     """
-    from alembic.config import Config
-    from alembic import command
-
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
@@ -61,10 +62,6 @@ def test_live_updated_at_trigger():
     """
     Integration Test: Verify updated_at trigger updates timestamp on record modification.
     """
-    from app.database.connection import SessionLocal
-    from app.database.models import User, AccountStatus
-    import time
-
     db = SessionLocal()
     try:
         user = User(email="trigger_test@example.com", password_hash="hash123", account_status=AccountStatus.ACTIVE)

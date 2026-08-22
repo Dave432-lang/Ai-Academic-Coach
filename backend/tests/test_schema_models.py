@@ -2,8 +2,7 @@
 Unit tests for SQLAlchemy ORM models, metadata declarations, constraints, and Alembic migration revision graph integrity.
 Runs entirely offline without requiring a live PostgreSQL database connection.
 """
-import pytest
-from sqlalchemy import Column, ForeignKeyConstraint, UniqueConstraint, CheckConstraint, Index
+from sqlalchemy import UniqueConstraint, CheckConstraint
 from app.database.models import (
     Base,
     User,
@@ -40,31 +39,36 @@ from app.database.models import (
 )
 
 
-def test_all_18_tables_registered_in_metadata():
+def test_all_18_model_classes_and_tables():
     """
-    Verify all 18 database tables are declared in Base.metadata.
+    Verify all 18 database model classes are correctly mapped to their respective table names.
     """
-    expected_tables = {
-        "users",
-        "universities",
-        "student_profiles",
-        "courses",
-        "course_enrollments",
-        "academic_events",
-        "tasks",
-        "study_sessions",
-        "goals",
-        "grades",
-        "course_materials",
-        "document_chunks",
-        "conversations",
-        "messages",
-        "memories",
-        "permissions",
-        "agent_actions",
-        "notifications",
+    model_table_map = {
+        User: "users",
+        University: "universities",
+        StudentProfile: "student_profiles",
+        Course: "courses",
+        CourseEnrollment: "course_enrollments",
+        AcademicEvent: "academic_events",
+        Task: "tasks",
+        StudySession: "study_sessions",
+        Goal: "goals",
+        Grade: "grades",
+        CourseMaterial: "course_materials",
+        DocumentChunk: "document_chunks",
+        Conversation: "conversations",
+        Message: "messages",
+        Memory: "memories",
+        Permission: "permissions",
+        AgentAction: "agent_actions",
+        Notification: "notifications",
     }
+
+    for model_cls, table_name in model_table_map.items():
+        assert model_cls.__tablename__ == table_name
+
     registered_tables = set(Base.metadata.tables.keys())
+    expected_tables = set(model_table_map.values())
     assert expected_tables.issubset(registered_tables), f"Missing tables: {expected_tables - registered_tables}"
 
 
