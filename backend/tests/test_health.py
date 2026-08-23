@@ -1,4 +1,14 @@
-def test_get_health_status(client):
+import sys
+from pathlib import Path
+from fastapi.testclient import TestClient
+
+# Ensure backend directory is in sys.path for IDEs and test runners
+backend_dir = Path(__file__).resolve().parent.parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+
+def test_get_health_status(client: TestClient):
     """
     Test GET /health returns HTTP 200 and {'status': 'ok'}.
     """
@@ -8,7 +18,7 @@ def test_get_health_status(client):
     assert data["status"] == "ok"
 
 
-def test_get_health_detailed(client):
+def test_get_health_detailed(client: TestClient):
     """
     Test GET /health?detailed=true includes app environment and database check response.
     """

@@ -13,7 +13,7 @@ except ImportError:
     from backend.app.core.config import Settings  # type: ignore
 
 
-def test_settings_default_values(settings):
+def test_settings_default_values(settings: Settings):
     """
     Test application settings initialization and default parameters.
     """
