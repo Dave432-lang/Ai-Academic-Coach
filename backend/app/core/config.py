@@ -27,7 +27,7 @@ class Settings(BaseSettings):
         description="Secret key for signing tokens and session data"
     )
     JWT_ALGORITHM: str = Field(default="HS256", description="JWT signature algorithm")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, description="Access token expiration window in minutes")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60, description="Access token expiration window in minutes")
 
     # CORS Settings
     ALLOWED_ORIGINS: Union[str, List[str]] = Field(

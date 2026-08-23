@@ -2,7 +2,7 @@ from logging.config import fileConfig
 import os
 import sys
 from sqlalchemy import engine_from_config, pool
-from alembic import context
+import alembic.context as context
 
 # Ensure backend root is in python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

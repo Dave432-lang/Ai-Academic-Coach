@@ -189,7 +189,8 @@ def test_alembic_revision_graph_integrity():
     from alembic.config import Config
     from alembic.script import ScriptDirectory
 
-    alembic_cfg = Config("alembic.ini")
+    alembic_cfg = Config(str(backend_dir / "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", str(backend_dir / "alembic"))
     script = ScriptDirectory.from_config(alembic_cfg)
 
     revisions = list(script.walk_revisions())
@@ -207,5 +208,6 @@ def test_alembic_revision_graph_integrity():
         "010_permissions_and_agent_actions",
         "011_notifications",
         "012_indexes_and_updated_at",
+        "013_onboarding_fields",
     ]
     assert rev_ids == expected_sequence, f"Revision sequence mismatch: {rev_ids}"

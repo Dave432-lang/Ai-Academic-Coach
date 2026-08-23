@@ -35,6 +35,7 @@ class Course(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
+        default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
     )
     university_id: Mapped[uuid.UUID] = mapped_column(
@@ -115,6 +116,7 @@ class CourseEnrollment(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
+        default=uuid.uuid4,
         server_default=text("gen_random_uuid()"),
     )
     student_id: Mapped[uuid.UUID] = mapped_column(

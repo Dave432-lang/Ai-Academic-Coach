@@ -10,7 +10,7 @@ if str(backend_dir) not in sys.path:
 
 from sqlalchemy import text
 from alembic.config import Config
-from alembic import command
+import alembic.command as command
 
 try:
     from app.database.connection import engine, SessionLocal, check_database_connection
@@ -59,7 +59,8 @@ def test_live_alembic_migrations():
     """
     Integration Test: Verify live Alembic upgrade and schema tables.
     """
-    alembic_cfg = Config("alembic.ini")
+    alembic_cfg = Config(str(backend_dir / "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", str(backend_dir / "alembic"))
     command.upgrade(alembic_cfg, "head")
 
     with engine.connect() as conn:
