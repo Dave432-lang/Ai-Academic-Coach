@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:07.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 from pgvector.sqlalchemy import Vector
 
 revision: str = '008_materials_and_rag_preparation'
@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    material_status_enum = sa.Enum("pending", "processing", "completed", "failed", name="material_processing_status", create_type=False)
+    material_status_enum = ENUM("pending", "processing", "completed", "failed", name="material_processing_status", create_type=False)
 
     op.create_table(
         "course_materials",

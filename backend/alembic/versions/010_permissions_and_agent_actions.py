@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:09.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID, JSONB, ENUM
 
 revision: str = '010_permissions_and_agent_actions'
 down_revision: Union[str, None] = '009_conversations_and_memory'
@@ -17,9 +17,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    permission_mode_enum = sa.Enum("allow", "require_approval", "require_confirmation", "deny", name="permission_mode", create_type=False)
-    agent_type_enum = sa.Enum("coordinator", "planner", "study", "progress", name="agent_type", create_type=False)
-    action_status_enum = sa.Enum("pending", "awaiting_approval", "approved", "rejected", "executing", "completed", "failed", "cancelled", name="action_status", create_type=False)
+    permission_mode_enum = ENUM("allow", "require_approval", "require_confirmation", "deny", name="permission_mode", create_type=False)
+    agent_type_enum = ENUM("coordinator", "planner", "study", "progress", name="agent_type", create_type=False)
+    action_status_enum = ENUM("pending", "awaiting_approval", "approved", "rejected", "executing", "completed", "failed", "cancelled", name="action_status", create_type=False)
 
     op.create_table(
         "permissions",

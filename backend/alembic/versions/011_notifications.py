@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:10.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 
 revision: str = '011_notifications'
 down_revision: Union[str, None] = '010_permissions_and_agent_actions'
@@ -17,7 +17,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    notification_status_enum = sa.Enum("scheduled", "sent", "read", "dismissed", "failed", "cancelled", name="notification_status", create_type=False)
+    notification_status_enum = ENUM("scheduled", "sent", "read", "dismissed", "failed", "cancelled", name="notification_status", create_type=False)
 
     op.create_table(
         "notifications",

@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:05.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 
 revision: str = '006_tasks_and_study_sessions'
 down_revision: Union[str, None] = '005_academic_events'
@@ -17,8 +17,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    priority_level_enum = sa.Enum("low", "medium", "high", "critical", name="priority_level", create_type=False)
-    academic_status_enum = sa.Enum("pending", "in_progress", "completed", "cancelled", "missed", name="academic_status", create_type=False)
+    priority_level_enum = ENUM("low", "medium", "high", "critical", name="priority_level", create_type=False)
+    academic_status_enum = ENUM("pending", "in_progress", "completed", "cancelled", "missed", name="academic_status", create_type=False)
 
     op.create_table(
         "tasks",

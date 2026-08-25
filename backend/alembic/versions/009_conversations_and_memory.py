@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:08.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 
 revision: str = '009_conversations_and_memory'
 down_revision: Union[str, None] = '008_materials_and_rag_preparation'
@@ -17,8 +17,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    message_role_enum = sa.Enum("user", "assistant", "system", name="message_role", create_type=False)
-    memory_type_enum = sa.Enum("preference", "goal", "academic_context", "learning_pattern", name="memory_type", create_type=False)
+    message_role_enum = ENUM("user", "assistant", "system", name="message_role", create_type=False)
+    memory_type_enum = ENUM("preference", "goal", "academic_context", "learning_pattern", name="memory_type", create_type=False)
 
     op.create_table(
         "conversations",

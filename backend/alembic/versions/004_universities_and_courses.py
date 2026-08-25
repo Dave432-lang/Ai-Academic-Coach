@@ -8,7 +8,7 @@ Create Date: 2026-08-22 00:00:03.000000
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 
 revision: str = '004_universities_and_courses'
 down_revision: Union[str, None] = '003_users_and_profiles'
@@ -17,7 +17,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    enrollment_status_enum = sa.Enum("active", "completed", "dropped", "withdrawn", name="enrollment_status", create_type=False)
+    enrollment_status_enum = ENUM("active", "completed", "dropped", "withdrawn", name="enrollment_status", create_type=False)
 
     op.create_table(
         "universities",
