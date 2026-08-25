@@ -66,7 +66,7 @@ class CourseMaterial(Base):
         nullable=True,
     )
     processing_status: Mapped[MaterialProcessingStatus] = mapped_column(
-        SQLEnum(MaterialProcessingStatus, name="material_processing_status", create_type=False),
+        SQLEnum(MaterialProcessingStatus, name="material_processing_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=MaterialProcessingStatus.PENDING,
         server_default=text("'pending'"),

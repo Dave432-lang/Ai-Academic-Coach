@@ -42,7 +42,7 @@ class Permission(Base):
         nullable=False,
     )
     permission_mode: Mapped[PermissionMode] = mapped_column(
-        SQLEnum(PermissionMode, name="permission_mode", create_type=False),
+        SQLEnum(PermissionMode, name="permission_mode", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     created_at: Mapped[datetime] = mapped_column(
@@ -79,7 +79,7 @@ class AgentAction(Base):
         nullable=False,
     )
     agent_type: Mapped[AgentType] = mapped_column(
-        SQLEnum(AgentType, name="agent_type", create_type=False),
+        SQLEnum(AgentType, name="agent_type", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     action_type: Mapped[str] = mapped_column(
@@ -96,7 +96,7 @@ class AgentAction(Base):
         nullable=True,
     )
     status: Mapped[ActionStatus] = mapped_column(
-        SQLEnum(ActionStatus, name="action_status", create_type=False),
+        SQLEnum(ActionStatus, name="action_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=ActionStatus.PENDING,
         server_default=text("'pending'"),

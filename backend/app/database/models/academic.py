@@ -62,7 +62,7 @@ class AcademicEvent(Base):
         nullable=True,
     )
     event_type: Mapped[EventType] = mapped_column(
-        SQLEnum(EventType, name="event_type", create_type=False),
+        SQLEnum(EventType, name="event_type", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     due_at: Mapped[datetime] = mapped_column(
@@ -70,13 +70,13 @@ class AcademicEvent(Base):
         nullable=False,
     )
     priority: Mapped[PriorityLevel] = mapped_column(
-        SQLEnum(PriorityLevel, name="priority_level", create_type=False),
+        SQLEnum(PriorityLevel, name="priority_level", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=PriorityLevel.MEDIUM,
         server_default=text("'medium'"),
     )
     status: Mapped[AcademicStatus] = mapped_column(
-        SQLEnum(AcademicStatus, name="academic_status", create_type=False),
+        SQLEnum(AcademicStatus, name="academic_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=AcademicStatus.PENDING,
         server_default=text("'pending'"),
@@ -143,13 +143,13 @@ class Task(Base):
         nullable=True,
     )
     priority: Mapped[PriorityLevel] = mapped_column(
-        SQLEnum(PriorityLevel, name="priority_level", create_type=False),
+        SQLEnum(PriorityLevel, name="priority_level", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=PriorityLevel.MEDIUM,
         server_default=text("'medium'"),
     )
     status: Mapped[AcademicStatus] = mapped_column(
-        SQLEnum(AcademicStatus, name="academic_status", create_type=False),
+        SQLEnum(AcademicStatus, name="academic_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=AcademicStatus.PENDING,
         server_default=text("'pending'"),
@@ -220,7 +220,7 @@ class StudySession(Base):
         nullable=False,
     )
     status: Mapped[AcademicStatus] = mapped_column(
-        SQLEnum(AcademicStatus, name="academic_status", create_type=False),
+        SQLEnum(AcademicStatus, name="academic_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=AcademicStatus.PENDING,
         server_default=text("'pending'"),
@@ -303,7 +303,7 @@ class Goal(Base):
         nullable=True,
     )
     status: Mapped[GoalStatus] = mapped_column(
-        SQLEnum(GoalStatus, name="goal_status", create_type=False),
+        SQLEnum(GoalStatus, name="goal_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=GoalStatus.ACTIVE,
         server_default=text("'active'"),

@@ -42,7 +42,7 @@ class Memory(Base):
         nullable=False,
     )
     memory_type: Mapped[MemoryType] = mapped_column(
-        SQLEnum(MemoryType, name="memory_type", create_type=False),
+        SQLEnum(MemoryType, name="memory_type", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(

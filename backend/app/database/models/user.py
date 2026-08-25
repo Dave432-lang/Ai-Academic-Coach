@@ -38,7 +38,7 @@ class User(Base):
         nullable=False,
     )
     account_status: Mapped[AccountStatus] = mapped_column(
-        SQLEnum(AccountStatus, name="account_status", create_type=False),
+        SQLEnum(AccountStatus, name="account_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=AccountStatus.ACTIVE,
         server_default=text("'active'"),

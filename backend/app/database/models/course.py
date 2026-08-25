@@ -140,7 +140,7 @@ class CourseEnrollment(Base):
         nullable=False,
     )
     status: Mapped[EnrollmentStatus] = mapped_column(
-        SQLEnum(EnrollmentStatus, name="enrollment_status", create_type=False),
+        SQLEnum(EnrollmentStatus, name="enrollment_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=EnrollmentStatus.ACTIVE,
         server_default=text("'active'"),

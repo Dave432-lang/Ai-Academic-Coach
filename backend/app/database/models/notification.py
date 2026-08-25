@@ -62,7 +62,7 @@ class Notification(Base):
         nullable=True,
     )
     status: Mapped[NotificationStatus] = mapped_column(
-        SQLEnum(NotificationStatus, name="notification_status", create_type=False),
+        SQLEnum(NotificationStatus, name="notification_status", create_type=False, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=NotificationStatus.SCHEDULED,
         server_default=text("'scheduled'"),
