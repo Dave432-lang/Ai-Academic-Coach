@@ -21,7 +21,7 @@ from app.database.models.enums import EnrollmentStatus
 if TYPE_CHECKING:
     from app.database.models.university import University
     from app.database.models.user import StudentProfile
-    from app.database.models.academic import AcademicEvent, Goal, Grade
+    from app.database.models.academic import AcademicEvent, Task, StudySession, Goal, Grade
     from app.database.models.material import CourseMaterial
 
 
@@ -82,6 +82,16 @@ class Course(Base):
     )
     academic_events: Mapped[list["AcademicEvent"]] = relationship(
         "AcademicEvent",
+        back_populates="course",
+        cascade="all, delete-orphan",
+    )
+    tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        back_populates="course",
+        cascade="all, delete-orphan",
+    )
+    study_sessions: Mapped[list["StudySession"]] = relationship(
+        "StudySession",
         back_populates="course",
         cascade="all, delete-orphan",
     )

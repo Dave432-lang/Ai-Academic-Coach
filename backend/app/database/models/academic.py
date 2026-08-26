@@ -125,6 +125,12 @@ class Task(Base):
         nullable=True,
         index=True,
     )
+    course_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("student_profiles.id", ondelete="CASCADE"),
@@ -140,6 +146,10 @@ class Task(Base):
     )
     estimated_minutes: Mapped[Optional[int]] = mapped_column(
         Integer,
+        nullable=True,
+    )
+    due_date: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
         nullable=True,
     )
     priority: Mapped[PriorityLevel] = mapped_column(
@@ -175,6 +185,10 @@ class Task(Base):
         "AcademicEvent",
         back_populates="tasks",
     )
+    course: Mapped[Optional["Course"]] = relationship(
+        "Course",
+        back_populates="tasks",
+    )
     student: Mapped["StudentProfile"] = relationship(
         "StudentProfile",
         back_populates="tasks",
@@ -200,16 +214,30 @@ class StudySession(Base):
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
-    task_id: Mapped[uuid.UUID] = mapped_column(
+    course_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    task_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("tasks.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     student_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("student_profiles.id", ondelete="CASCADE"),
         nullable=False,
+    )
+    topic: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+    notes: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
     )
     scheduled_start: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -250,7 +278,11 @@ class StudySession(Base):
         server_default=func.now(),
     )
 
-    task: Mapped["Task"] = relationship(
+    course: Mapped[Optional["Course"]] = relationship(
+        "Course",
+        back_populates="study_sessions",
+    )
+    task: Mapped[Optional["Task"]] = relationship(
         "Task",
         back_populates="study_sessions",
     )
