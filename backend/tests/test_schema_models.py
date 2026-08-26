@@ -209,5 +209,6 @@ def test_alembic_revision_graph_integrity():
         "011_notifications",
         "012_indexes_and_updated_at",
         "013_onboarding_fields",
+        "014_phase4_academic_fields",
     ]
     assert rev_ids == expected_sequence, f"Revision sequence mismatch: {rev_ids}"
