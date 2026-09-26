@@ -13,17 +13,60 @@ class AcademicService {
     http.Client? client,
   }) : client = client ?? http.Client();
 
+  /// Robust helper to parse JSON list responses and extract 401/error details safely
+  static List<dynamic> _parseJsonList(http.Response response, String fallbackMessage) {
+    dynamic body;
+    try {
+      body = jsonDecode(response.body);
+    } catch (_) {
+      throw Exception('$fallbackMessage (${response.statusCode})');
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (body is List) {
+        return body;
+      }
+      throw Exception('Expected JSON list response from API');
+    } else {
+      if (body is Map && body.containsKey('detail')) {
+        throw Exception(body['detail'].toString());
+      }
+      throw Exception('$fallbackMessage (${response.statusCode})');
+    }
+  }
+
+  /// Robust helper to parse JSON map responses and extract 401/error details safely
+  static Map<String, dynamic> _parseJsonMap(http.Response response, String fallbackMessage) {
+    dynamic body;
+    try {
+      body = jsonDecode(response.body);
+    } catch (_) {
+      throw Exception('$fallbackMessage (${response.statusCode})');
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (body is Map<String, dynamic>) {
+        return body;
+      }
+      if (body is Map) {
+        return Map<String, dynamic>.from(body);
+      }
+      throw Exception('Expected JSON object response from API');
+    } else {
+      if (body is Map && body.containsKey('detail')) {
+        throw Exception(body['detail'].toString());
+      }
+      throw Exception('$fallbackMessage (${response.statusCode})');
+    }
+  }
+
   /// Dashboard Summary
   Future<DashboardSummaryModel> fetchDashboardSummary() async {
     final uri = Uri.parse(ApiConfig.dashboardSummaryEndpoint);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      return DashboardSummaryModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load dashboard summary: ${response.body}');
-    }
+    final map = _parseJsonMap(response, 'Failed to load dashboard summary');
+    return DashboardSummaryModel.fromJson(map);
   }
 
   /// Courses
@@ -31,13 +74,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.coursesEndpoint);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => AcademicCourseEnrollmentModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load courses: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load courses');
+    return list.map((e) => AcademicCourseEnrollmentModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Events
@@ -49,13 +87,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.eventsEndpoint).replace(queryParameters: queryParams);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => AcademicEventModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load events: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load events');
+    return list.map((e) => AcademicEventModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<AcademicEventModel> createEvent({
@@ -80,26 +113,16 @@ class AcademicService {
         'priority': priority,
       }),
     );
-
-    if (response.statusCode == 201) {
-      return AcademicEventModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to create event');
-    }
+    final map = _parseJsonMap(response, 'Failed to create event');
+    return AcademicEventModel.fromJson(map);
   }
 
   Future<AcademicEventModel> updateEvent(String eventId, Map<String, dynamic> updates) async {
     final uri = Uri.parse('${ApiConfig.eventsEndpoint}/$eventId');
     final headers = await authService.getAuthHeaders();
     final response = await client.patch(uri, headers: headers, body: jsonEncode(updates));
-
-    if (response.statusCode == 200) {
-      return AcademicEventModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to update event');
-    }
+    final map = _parseJsonMap(response, 'Failed to update event');
+    return AcademicEventModel.fromJson(map);
   }
 
   Future<void> deleteEvent(String eventId) async {
@@ -108,7 +131,7 @@ class AcademicService {
     final response = await client.delete(uri, headers: headers);
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete event');
+      _parseJsonMap(response, 'Failed to delete event');
     }
   }
 
@@ -121,13 +144,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.tasksEndpoint).replace(queryParameters: queryParams);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => TaskModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load tasks: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load tasks');
+    return list.map((e) => TaskModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<TaskModel> createTask({
@@ -152,26 +170,16 @@ class AcademicService {
         'due_date': dueDate?.toUtc().toIso8601String(),
       }),
     );
-
-    if (response.statusCode == 201) {
-      return TaskModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to create task');
-    }
+    final map = _parseJsonMap(response, 'Failed to create task');
+    return TaskModel.fromJson(map);
   }
 
   Future<TaskModel> updateTask(String taskId, Map<String, dynamic> updates) async {
     final uri = Uri.parse('${ApiConfig.tasksEndpoint}/$taskId');
     final headers = await authService.getAuthHeaders();
     final response = await client.patch(uri, headers: headers, body: jsonEncode(updates));
-
-    if (response.statusCode == 200) {
-      return TaskModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to update task');
-    }
+    final map = _parseJsonMap(response, 'Failed to update task');
+    return TaskModel.fromJson(map);
   }
 
   Future<void> deleteTask(String taskId) async {
@@ -180,7 +188,7 @@ class AcademicService {
     final response = await client.delete(uri, headers: headers);
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete task');
+      _parseJsonMap(response, 'Failed to delete task');
     }
   }
 
@@ -192,13 +200,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.studySessionsEndpoint).replace(queryParameters: queryParams);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => StudySessionModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load study sessions: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load study sessions');
+    return list.map((e) => StudySessionModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<StudySessionModel> createStudySession({
@@ -221,26 +224,16 @@ class AcademicService {
         'notes': notes,
       }),
     );
-
-    if (response.statusCode == 201) {
-      return StudySessionModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to schedule study session');
-    }
+    final map = _parseJsonMap(response, 'Failed to schedule study session');
+    return StudySessionModel.fromJson(map);
   }
 
   Future<StudySessionModel> updateStudySession(String sessionId, Map<String, dynamic> updates) async {
     final uri = Uri.parse('${ApiConfig.studySessionsEndpoint}/$sessionId');
     final headers = await authService.getAuthHeaders();
     final response = await client.patch(uri, headers: headers, body: jsonEncode(updates));
-
-    if (response.statusCode == 200) {
-      return StudySessionModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to update study session');
-    }
+    final map = _parseJsonMap(response, 'Failed to update study session');
+    return StudySessionModel.fromJson(map);
   }
 
   Future<void> deleteStudySession(String sessionId) async {
@@ -249,7 +242,7 @@ class AcademicService {
     final response = await client.delete(uri, headers: headers);
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete study session');
+      _parseJsonMap(response, 'Failed to delete study session');
     }
   }
 
@@ -262,13 +255,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.goalsEndpoint).replace(queryParameters: queryParams);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => GoalModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load goals: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load goals');
+    return list.map((e) => GoalModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<GoalModel> createGoal({
@@ -293,26 +281,16 @@ class AcademicService {
         'target_date': targetDate?.toUtc().toIso8601String(),
       }),
     );
-
-    if (response.statusCode == 201) {
-      return GoalModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to create goal');
-    }
+    final map = _parseJsonMap(response, 'Failed to create goal');
+    return GoalModel.fromJson(map);
   }
 
   Future<GoalModel> updateGoal(String goalId, Map<String, dynamic> updates) async {
     final uri = Uri.parse('${ApiConfig.goalsEndpoint}/$goalId');
     final headers = await authService.getAuthHeaders();
     final response = await client.patch(uri, headers: headers, body: jsonEncode(updates));
-
-    if (response.statusCode == 200) {
-      return GoalModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to update goal');
-    }
+    final map = _parseJsonMap(response, 'Failed to update goal');
+    return GoalModel.fromJson(map);
   }
 
   Future<void> deleteGoal(String goalId) async {
@@ -321,7 +299,7 @@ class AcademicService {
     final response = await client.delete(uri, headers: headers);
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete goal');
+      _parseJsonMap(response, 'Failed to delete goal');
     }
   }
 
@@ -333,13 +311,8 @@ class AcademicService {
     final uri = Uri.parse(ApiConfig.gradesEndpoint).replace(queryParameters: queryParams);
     final headers = await authService.getAuthHeaders();
     final response = await client.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => GradeModel.fromJson(e)).toList();
-    } else {
-      throw Exception('Failed to load grades: ${response.body}');
-    }
+    final list = _parseJsonList(response, 'Failed to load grades');
+    return list.map((e) => GradeModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<GradeModel> createGrade({
@@ -362,13 +335,8 @@ class AcademicService {
         'assessment_type': assessmentType,
       }),
     );
-
-    if (response.statusCode == 201) {
-      return GradeModel.fromJson(jsonDecode(response.body));
-    } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['detail'] ?? 'Failed to add grade record');
-    }
+    final map = _parseJsonMap(response, 'Failed to add grade record');
+    return GradeModel.fromJson(map);
   }
 
   Future<void> deleteGrade(String gradeId) async {
@@ -377,7 +345,7 @@ class AcademicService {
     final response = await client.delete(uri, headers: headers);
 
     if (response.statusCode != 204) {
-      throw Exception('Failed to delete grade record');
+      _parseJsonMap(response, 'Failed to delete grade record');
     }
   }
 }

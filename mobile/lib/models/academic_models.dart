@@ -242,11 +242,20 @@ class GradeModel {
       courseId: json['course_id'] as String,
       assessmentName: json['assessment_name'] as String,
       assessmentType: json['assessment_type'] as String?,
-      score: (json['score'] as num).toDouble(),
-      maxScore: (json['max_score'] as num).toDouble(),
-      percentage: json['percentage'] != null ? (json['percentage'] as num).toDouble() : null,
+      score: json['score'] is num
+          ? (json['score'] as num).toDouble()
+          : double.parse(json['score'].toString()),
+      maxScore: json['max_score'] is num
+          ? (json['max_score'] as num).toDouble()
+          : double.parse(json['max_score'].toString()),
+      percentage: json['percentage'] != null
+          ? (json['percentage'] is num
+              ? (json['percentage'] as num).toDouble()
+              : double.parse(json['percentage'].toString()))
+          : null,
     );
   }
+
 }
 
 class DashboardSummaryModel {

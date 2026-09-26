@@ -1,14 +1,16 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/config/api_config.dart';
 import '../models/user_model.dart';
+import '../routes/app_routes.dart';
 
 class AuthService {
   final http.Client client;
   final FlutterSecureStorage storage;
   static const String _tokenStorageKey = 'jwt_access_token';
-  String? _cachedToken;
+  static String? _cachedToken;
 
   AuthService({
     http.Client? client,
@@ -177,5 +179,25 @@ class AuthService {
   /// Log out current user and clear token from secure storage
   Future<void> logout() async {
     await setAuthToken(null);
+  }
+
+  /// Central session expiration handler when any request returns 401 Unauthorized
+  Future<void> handleSessionExpired(
+    BuildContext context, {
+    String message = 'Your session has expired — please log in again.',
+  }) async {
+    await logout();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        Navigator.pushNamedAndRemoveUntil(context, AppRoutes.login, (route) => false);
+      }
+    });
   }
 }
