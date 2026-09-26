@@ -4,7 +4,7 @@ Database session management and HTTP Bearer JWT authentication dependencies.
 """
 from typing import Generator, Optional
 import uuid
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -17,21 +17,22 @@ security_scheme = HTTPBearer(auto_error=False)
 
 def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
+    token: Optional[str] = Query(default=None, description="Optional JWT token query parameter"),
     db: Session = Depends(get_db),
 ) -> User:
     """
-    Validate HTTP Bearer JWT token and return current authenticated User.
+    Validate HTTP Bearer JWT token (from Authorization header or query parameter) and return current authenticated User.
     Raises 401 Unauthorized for invalid/expired tokens or missing credentials,
     and 403 Forbidden for suspended/deleted users.
     """
-    if not credentials:
+    jwt_token = credentials.credentials if credentials else token
+    if not jwt_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    token = credentials.credentials
-    payload = decode_access_token(token)
+    payload = decode_access_token(jwt_token)
     if not payload or "sub" not in payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

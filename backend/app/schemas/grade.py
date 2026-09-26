@@ -43,9 +43,10 @@ class GradeRead(BaseModel):
     course_id: uuid.UUID
     assessment_name: str
     assessment_type: Optional[str] = None
-    score: Decimal
-    max_score: Decimal
+    score: float
+    max_score: float
     percentage: Optional[float] = None
+
     graded_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
