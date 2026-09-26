@@ -49,6 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadUserData() async {
     final result = await _authService.getMe();
     if (!mounted) return;
+    if (result['statusCode'] == 401 || (result['error'] != null && result['error'].toString().contains('Could not validate credentials'))) {
+      _authService.handleSessionExpired(context);
+      return;
+    }
     setState(() {
       _isLoadingMe = false;
       if (result['success'] == true) {
@@ -72,8 +76,13 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     } catch (e) {
       if (!mounted) return;
+      final errStr = e.toString();
+      if (errStr.contains('Not authenticated') || errStr.contains('Could not validate credentials')) {
+        _authService.handleSessionExpired(context);
+        return;
+      }
       setState(() {
-        _summaryError = e.toString();
+        _summaryError = errStr.replaceAll('Exception: ', '');
         _isLoadingSummary = false;
       });
     }
@@ -298,6 +307,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
+                            onPressed: () => Navigator.pushNamed(context, AppRoutes.materials),
+                            icon: const Icon(Icons.folder_shared, size: 18),
+                            label: const Text('Materials'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.surfaceColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(builder: (_) => GoalsScreen(authService: _authService)),
@@ -312,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => Navigator.push(

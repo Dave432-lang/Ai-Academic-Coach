@@ -57,4 +57,8 @@ class ApiConfig {
   static String get goalsEndpoint => "$baseUrl/api/v1/goals";
   static String get gradesEndpoint => "$baseUrl/api/v1/grades";
   static String get dashboardSummaryEndpoint => "$baseUrl/api/v1/dashboard/summary";
+
+  // Phase 5 Course Materials Endpoint
+  static String get materialsEndpoint => "$baseUrl/api/v1/materials";
+
 }

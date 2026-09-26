@@ -348,4 +348,77 @@ class AcademicService {
       _parseJsonMap(response, 'Failed to delete grade record');
     }
   }
+
+  /// Course Materials
+  Future<List<CourseMaterialModel>> fetchMaterials({String? courseId}) async {
+    final queryParams = <String, String>{};
+    if (courseId != null && courseId.isNotEmpty) queryParams['course_id'] = courseId;
+
+    final uri = Uri.parse(ApiConfig.materialsEndpoint).replace(queryParameters: queryParams);
+    final headers = await authService.getAuthHeaders();
+    final response = await client.get(uri, headers: headers);
+    final list = _parseJsonList(response, 'Failed to load materials');
+    return list.map((e) => CourseMaterialModel.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<CourseMaterialModel> uploadMaterial({
+    required String courseId,
+    required List<int> fileBytes,
+    required String fileName,
+    String? title,
+  }) async {
+    final uri = Uri.parse(ApiConfig.materialsEndpoint);
+    final authHeaders = await authService.getAuthHeaders();
+
+    final request = http.MultipartRequest('POST', uri);
+    request.headers.addAll(authHeaders);
+    request.fields['course_id'] = courseId;
+    if (title != null && title.isNotEmpty) {
+      request.fields['title'] = title;
+    }
+
+    final multipartFile = http.MultipartFile.fromBytes(
+      'file',
+      fileBytes,
+      filename: fileName,
+    );
+    request.files.add(multipartFile);
+
+    final streamedResponse = await client.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
+    final map = _parseJsonMap(response, 'Failed to upload material');
+    return CourseMaterialModel.fromJson(map);
+  }
+
+  Future<List<int>> downloadMaterialBytes(String materialId) async {
+    final uri = Uri.parse('${ApiConfig.materialsEndpoint}/$materialId/download');
+    final headers = await authService.getAuthHeaders();
+    final response = await client.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      _parseJsonMap(response, 'Failed to download material');
+      return [];
+    }
+  }
+
+  Future<String> getMaterialDownloadUrl(String materialId) async {
+    final token = await authService.getAuthToken();
+    final baseUrl = '${ApiConfig.materialsEndpoint}/$materialId/download';
+    if (token != null && token.isNotEmpty) {
+      return '$baseUrl?token=$token';
+    }
+    return baseUrl;
+  }
+
+  Future<void> deleteMaterial(String materialId) async {
+    final uri = Uri.parse('${ApiConfig.materialsEndpoint}/$materialId');
+    final headers = await authService.getAuthHeaders();
+    final response = await client.delete(uri, headers: headers);
+
+    if (response.statusCode != 200) {
+      _parseJsonMap(response, 'Failed to delete material');
+    }
+  }
 }

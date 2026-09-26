@@ -291,3 +291,51 @@ class DashboardSummaryModel {
     );
   }
 }
+
+class CourseMaterialModel {
+  final String id;
+  final String studentId;
+  final String courseId;
+  final String fileName;
+  final String fileType;
+  final String storageKey;
+  final int? fileSize;
+  final String processingStatus;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final String? courseCode;
+  final String? courseName;
+
+  CourseMaterialModel({
+    required this.id,
+    required this.studentId,
+    required this.courseId,
+    required this.fileName,
+    required this.fileType,
+    required this.storageKey,
+    this.fileSize,
+    required this.processingStatus,
+    required this.createdAt,
+    required this.updatedAt,
+    this.courseCode,
+    this.courseName,
+  });
+
+  factory CourseMaterialModel.fromJson(Map<String, dynamic> json) {
+    return CourseMaterialModel(
+      id: json['id'] as String,
+      studentId: json['student_id'] as String,
+      courseId: json['course_id'] as String,
+      fileName: json['file_name'] as String,
+      fileType: json['file_type'] as String,
+      storageKey: json['storage_key'] as String,
+      fileSize: json['file_size'] as int?,
+      processingStatus: json['processing_status'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+      courseCode: json['course_code'] as String?,
+      courseName: json['course_name'] as String?,
+    );
+  }
+}
+
