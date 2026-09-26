@@ -68,6 +68,10 @@ postgres_data/
 *.sqlite3
 docker/data/
 
+# Storage / Uploads
+/backend/storage/
+storage/
+
 # IDE & Editors
 .vscode/
 !.vscode/settings.json

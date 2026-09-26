@@ -17,8 +17,18 @@ class Settings(BaseSettings):
 
     # Database Configuration
     DATABASE_URL: str = Field(
-        default="postgresql+psycopg://academic_coach:academic_coach_dev_pass@127.0.0.1:5432/ai_academic_coach",
+        default="postgresql+psycopg://academic_coach:academic_coach_dev_pass@localhost:5432/ai_academic_coach",
         description="SQLAlchemy compatible database connection string"
+    )
+
+    # File Storage Configuration
+    STORAGE_PATH: str = Field(
+        default="storage/course_materials",
+        description="Directory path for storing uploaded course materials"
+    )
+    MAX_UPLOAD_SIZE_MB: int = Field(
+        default=20,
+        description="Maximum allowed file upload size in megabytes"
     )
 
     # Security Parameters
